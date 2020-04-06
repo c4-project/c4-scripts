@@ -23,4 +23,4 @@ trap 'rm -rf ${OUTPUT_DIR}' EXIT
 
 act-fuzz replay -trace "${trace}" "${original}" -o "${OUTPUT_DIR}/in.litmus"
 
-! "${SCRIPTDIR}/simulate.sh" "${OUTPUT_DIR}/in.litmus" | grep "flagged"
+! "${SCRIPTDIR}/simulate" "${OUTPUT_DIR}/in.litmus" | grep "flagged"
