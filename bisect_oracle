@@ -5,13 +5,14 @@ set -euo pipefail
 SCRIPTDIR="${SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"
 readonly SCRIPTDIR
 
-if [[ $# -ne 2 ]]; then
-    echo "usage: $0 TRACE ORIGINAL" >&2
+if [[ $# -ne 2 && $# -ne 3 ]]; then
+    echo "usage: $0 TRACE ORIGINAL [MACHINE]" >&2
     exit 2
 fi
 
 trace="$1"
 original="$2"
+machine="${3:-"localhost"}"
 
 # Try to remove some entropy from the bisection process
 export ACT_SEED=0
@@ -23,4 +24,4 @@ trap 'rm -rf ${OUTPUT_DIR}' EXIT
 
 act-fuzz replay -trace "${trace}" "${original}" -o "${OUTPUT_DIR}/in.litmus"
 
-! "${SCRIPTDIR}/simulate" "${OUTPUT_DIR}/in.litmus" | grep "flagged"
+! "${SCRIPTDIR}/once_locally" -m "${machine}" "${OUTPUT_DIR}/in.litmus" | grep "flagged"

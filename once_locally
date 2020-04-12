@@ -11,13 +11,86 @@
 
 set -euo pipefail
 
-rm -rf tester_test || true
-mkdir tester_test
+SCRIPTDIR="${SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"
+readonly SCRIPTDIR
 
-act-tester-plan -m localhost examples/c_litmus/memalloy/*.litmus |
-	tee tester_test/plan.toml |
-act-tester-fuzz -d tester_test/fuzz -n 10 |
-	tee tester_test/plan.fuzzed.toml |
-act-tester-lift -d tester_test/lift |
-	tee tester_test/plan.lifted.toml |
-act-tester-mach -d tester_test/compile > tester_test/plan.out.toml
+# shellcheck source=scripts/act_bash/args.sh
+source "${SCRIPTDIR}/act_bash/args.sh"
+# shellcheck source=scripts/act_bash/log.sh
+source "${SCRIPTDIR}/act_bash/log.sh"
+# shellcheck source=scripts/act_bash/naming.sh
+source "${SCRIPTDIR}/act_bash/naming.sh"
+
+## Variables ##
+
+# The name of the output directory.
+# If empty, we use a temporary directory.
+OUTPUT_DIR=""
+
+# The ID of the machine to run.
+MACHINE="localhost"
+
+# The number of times to fuzz.
+# If 0, don't fuzz.
+FUZZ="0"
+
+## Functions ##
+
+# Prints the script's usage and exits.
+usage() {
+  echo "usage: $0 [-d DIR] [-f NUM_FUZZ] [-m MACHINE] [-${ACT_STANDARD_FLAGS}] FILES..." >&2
+  echo
+  echo "-d: directory to use for outputting intermediate files"
+  echo "-f: number of cycles to fuzz each subject (0 = don't fuzz)"
+  echo "-m: ID of machine to use"
+  act::standard_usage
+
+  exit 1
+}
+
+# Fuzzes if FUZZ is non-zero; else, passes stdin through unchanged.
+maybe_fuzz() {
+  if [[ "${FUZZ}" == 0 ]]; then
+    cat
+  else
+    act::log "Fuzzing %d time(s).\n" "${FUZZ}"
+    act-tester-fuzz -d "${OUTPUT_DIR}/fuzz" -n "${FUZZ}"
+  fi
+}
+
+# Runs the act-tester pipeline.
+run() {
+  act-tester-plan -m "${MACHINE}" "$@" |
+    tee "${OUTPUT_DIR}/plan.toml "|
+  maybe_fuzz |
+    tee "${OUTPUT_DIR}/plan.fuzzed.toml " |
+  act-tester-lift -d "${OUTPUT_DIR}/lift " |
+    tee "${OUTPUT_DIR}/plan.lifted.toml " |
+  act-tester-rmach -d "${OUTPUT_DIR}/compile" |
+    tee "${OUTPUT_DIR}"/plan.out.toml
+}
+
+# The main function.
+main() {
+  while getopts "d:fm:qvx?h" a; do
+    case "${a}" in
+    d) OUTPUT_DIR="${OPTARG}" ;;
+    f) FUZZ="${OPTARG}" ;;
+    m) MACHINE="${OPTARG}" ;;
+    *) act::parse_standard_args "${a}" "${OPTARG:-}" ;;
+    esac
+  done
+  # VERBOSE etc. are used indirectly by various library functions.
+  # shellcheck disable=SC2034
+  readonly VERBOSE FUZZ MACHINE
+  shift $((OPTIND-1))
+
+  if [[ $# -lt 1 ]]; then act::arg_error "need at least one file argument"; fi
+  if [[ ${FUZZ} -lt 0 ]]; then act::arg_error "count must be a non-negative integer"; fi
+  if [[ -z ${OUTPUT_DIR} ]]; then act::setup_temp_output_dir; fi
+  readonly OUTPUT_DIR
+
+  run "$@"
+}
+
+main "$@"
