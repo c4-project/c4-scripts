@@ -24,4 +24,5 @@ trap 'rm -rf ${OUTPUT_DIR}' EXIT
 
 act-fuzz replay -trace "${trace}" "${original}" -o "${OUTPUT_DIR}/in.litmus"
 
-! "${SCRIPTDIR}/once_locally" -m "${machine}" "${OUTPUT_DIR}/in.litmus" | grep "flagged"
+# TODO(@MattWindsor91): the grep here is just looking for any lines in the output, and should be more robust.
+! "${SCRIPTDIR}/once_locally" -m "${machine}" "${OUTPUT_DIR}/in.litmus" | grep ": "
