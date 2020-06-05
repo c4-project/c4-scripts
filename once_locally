@@ -51,28 +51,30 @@ usage() {
 # Fuzzes if FUZZ is non-zero; else, passes stdin through unchanged.
 maybe_fuzz() {
   if [[ "${FUZZ}" == 0 ]]; then
-    cat
+    cat "$1"
   else
     act::log "Fuzzing %d time(s).\n" "${FUZZ}"
-    act-tester-fuzz -d "${OUTPUT_DIR}/fuzz" -n "${FUZZ}"
+    act-tester-fuzz -d "${OUTPUT_DIR}/fuzz" -k "${FUZZ}" "$1"
   fi
 }
 
 # Runs the act-tester pipeline.
 run() {
-  act-tester-plan -m "${MACHINE}" "$@" |
-    tee "${OUTPUT_DIR}/plan.toml "|
-  maybe_fuzz |
-    tee "${OUTPUT_DIR}/plan.fuzzed.toml " |
-  act-tester-lift -d "${OUTPUT_DIR}/lift " |
-    tee "${OUTPUT_DIR}/plan.lifted.toml " |
-  act-tester-rmach -d "${OUTPUT_DIR}/compile" |
-    tee "${OUTPUT_DIR}"/plan.out.toml
+  local plan="${OUTPUT_DIR}/plan.json"
+  local fplan="${OUTPUT_DIR}/plan.fuzzed.json"
+  local lplan="${OUTPUT_DIR}/plan.lifted.json"
+  local oplan="${OUTPUT_DIR}/plan.out.json"
+
+  act-tester-plan -m "${MACHINE}" "$@" > "${plan}"
+  maybe_fuzz "${plan}" > "${fplan}"
+  act-tester-lift -d "${OUTPUT_DIR}/lift" "${fplan}" > "${lplan}"
+  act-tester-rmach -d "${OUTPUT_DIR}/compile" "${lplan}" > "${oplan}"
+  act-tester-analyse "${oplan}"
 }
 
 # The main function.
 main() {
-  while getopts "d:fm:qvx?h" a; do
+  while getopts "d:f:m:qvx?h" a; do
     case "${a}" in
     d) OUTPUT_DIR="${OPTARG}" ;;
     f) FUZZ="${OPTARG}" ;;
