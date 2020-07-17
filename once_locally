@@ -14,11 +14,11 @@ set -euo pipefail
 SCRIPTDIR="${SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"
 readonly SCRIPTDIR
 
-# shellcheck source=scripts/act_bash/args.sh
+# shellcheck source=act_bash/args.sh
 source "${SCRIPTDIR}/act_bash/args.sh"
-# shellcheck source=scripts/act_bash/log.sh
+# shellcheck source=act_bash/log.sh
 source "${SCRIPTDIR}/act_bash/log.sh"
-# shellcheck source=scripts/act_bash/naming.sh
+# shellcheck source=act_bash/naming.sh
 source "${SCRIPTDIR}/act_bash/naming.sh"
 
 ## Variables ##
@@ -68,7 +68,7 @@ run() {
   act-tester-plan -m "${MACHINE}" "$@" > "${plan}"
   maybe_fuzz "${plan}" > "${fplan}"
   act-tester-lift -d "${OUTPUT_DIR}/lift" "${fplan}" > "${lplan}"
-  act-tester-rmach -d "${OUTPUT_DIR}/compile" "${lplan}" > "${oplan}"
+  act-tester-invoke -d "${OUTPUT_DIR}/compile" "${lplan}" > "${oplan}"
   act-tester-analyse "${oplan}"
 }
 
