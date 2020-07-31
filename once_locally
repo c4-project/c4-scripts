@@ -61,15 +61,17 @@ maybe_fuzz() {
 # Runs the act-tester pipeline.
 run() {
   local plan="${OUTPUT_DIR}/plan.json"
+  local pplan="${OUTPUT_DIR}/plan.perturbed.json"
   local fplan="${OUTPUT_DIR}/plan.fuzzed.json"
   local lplan="${OUTPUT_DIR}/plan.lifted.json"
   local oplan="${OUTPUT_DIR}/plan.out.json"
 
   act-tester-plan -m "${MACHINE}" "$@" > "${plan}"
-  maybe_fuzz "${plan}" > "${fplan}"
+  act-tester-perturb "${plan}" > "${pplan}"
+  maybe_fuzz "${pplan}" > "${fplan}"
   act-tester-lift -d "${OUTPUT_DIR}/lift" "${fplan}" > "${lplan}"
   act-tester-invoke -d "${OUTPUT_DIR}/compile" "${lplan}" > "${oplan}"
-  act-tester-analyse "${oplan}"
+  act-tester-analyse -CPS "${oplan}"
 }
 
 # The main function.
