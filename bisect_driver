@@ -1,0 +1,95 @@
+#!/bin/bash
+# Copyright (c) 2020 Matt Windsor and contributors
+#
+# This file is part of act-tester.
+# Licenced under the MIT licence; see `LICENSE`.
+
+# Expects to be run in an ACT working directory.
+# Runs all of the various single-shot binaries of act-tester in a pipeline, outputting to ./tester_test.
+
+# TODO(@MattWindsor91): make this parametric and more robust.
+
+set -euo pipefail
+
+SCRIPTDIR="${SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"
+readonly SCRIPTDIR
+
+# shellcheck source=act_bash/args.sh
+source "${SCRIPTDIR}/act_bash/args.sh"
+# shellcheck source=act_bash/log.sh
+source "${SCRIPTDIR}/act_bash/log.sh"
+# shellcheck source=act_bash/naming.sh
+source "${SCRIPTDIR}/act_bash/naming.sh"
+
+## Variables ##
+
+# The name of the output directory.
+# If empty, we use a temporary directory.
+OUTPUT_DIR=""
+
+# The ID of the machine to run.
+MACHINE="localhost"
+
+# The ID of the compiler to run.
+COMPILER="gcc"
+
+# The opt of the compiler to run.
+OPT=""
+
+# The mopt of the compiler to run.
+MOPT=""
+
+## Functions ##
+
+# Prints the script's usage and exits.
+usage() {
+  echo "usage: $0 [-d DIR] [-m MACHINE] [-c COMPILER] [-O OPT] [-M OPT] [-${ACT_STANDARD_FLAGS}] FILES..." >&2
+  echo
+  echo "-d: directory to use for outputting intermediate files"
+  echo "-m: ID of machine to use"
+  echo "-O: optimisation level to use"
+  echo "-M: machine optimisation profile to use"
+  act::standard_usage
+
+  exit 1
+}
+
+# Runs the act-tester pipeline needed for bisection.
+run() {
+  local plan="${OUTPUT_DIR}/plan.orig.json"
+  local pplan="${OUTPUT_DIR}/plan.setc.json"
+  local lplan="${OUTPUT_DIR}/plan.lifted.json"
+  local oplan="${OUTPUT_DIR}/plan.out.json"
+
+  act-tester-plan -m "${MACHINE}" -c "${COMPILER}" "$@" > "${plan}"
+  act-tester-setc -c "${COMPILER}" --opt-level "${OPT}" --machine-opt "${MOPT}" "${plan}" > "${pplan}"
+  act-tester-lift -d "${OUTPUT_DIR}/lift" "${pplan}" > "${lplan}"
+  act-tester-invoke -d "${OUTPUT_DIR}/compile" -t 10s -T 5s "${lplan}" > "${oplan}"
+  act-tester-analyse -e "${oplan}"
+}
+
+# The main function.
+main() {
+  while getopts "d:m:c:O:M:qvx?h" a; do
+    case "${a}" in
+    d) OUTPUT_DIR="${OPTARG}" ;;
+    m) MACHINE="${OPTARG}" ;;
+    c) COMPILER="${OPTARG}" ;;
+    O) OPT="${OPTARG}" ;;
+    M) MOPT="${OPTARG}" ;;
+    *) act::parse_standard_args "${a}" "${OPTARG:-}" ;;
+    esac
+  done
+  # VERBOSE etc. are used indirectly by various library functions.
+  # shellcheck disable=SC2034
+  readonly VERBOSE FUZZ MACHINE
+  shift $((OPTIND-1))
+
+  if [[ $# -lt 1 ]]; then act::arg_error "need at least one file argument"; fi
+  if [[ -z ${OUTPUT_DIR} ]]; then act::setup_temp_output_dir; fi
+  readonly OUTPUT_DIR
+
+  run "$@"
+}
+
+main "$@"
