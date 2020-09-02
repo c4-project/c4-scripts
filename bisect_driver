@@ -21,7 +21,9 @@ source "${SCRIPTDIR}/act_bash/log.sh"
 # shellcheck source=act_bash/naming.sh
 source "${SCRIPTDIR}/act_bash/naming.sh"
 
+
 ## Variables ##
+
 
 # The name of the output directory.
 # If empty, we use a temporary directory.
@@ -39,7 +41,12 @@ OPT=""
 # The mopt of the compiler to run.
 MOPT=""
 
+# Whether or not verbose logging is enabled.
+VERBOSE="false"
+
+
 ## Functions ##
+
 
 # Prints the script's usage and exits.
 usage() {

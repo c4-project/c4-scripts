@@ -34,7 +34,12 @@ MACHINE="localhost"
 # If 0, don't fuzz.
 FUZZ="0"
 
+# Whether or not verbose logging is enabled.
+VERBOSE="false"
+
+
 ## Functions ##
+
 
 # Prints the script's usage and exits.
 usage() {
