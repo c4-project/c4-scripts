@@ -4,8 +4,8 @@
 # This file is part of act-tester.
 # Licenced under the MIT licence; see `LICENSE`.
 
-# Runs all of the various single-shot binaries of act-tester in a pipeline, but
-# in a way that is amenable to use as a bisection driver.
+# Frontend for act's trace bisection.  Remembers all the arguments so you
+# don't have to.
 
 set -euo pipefail
 
@@ -14,6 +14,8 @@ readonly SCRIPTDIR
 
 # shellcheck source=act_bash/args.sh
 source "${SCRIPTDIR}/act_bash/args.sh"
+# shellcheck source=act_bash/exec.sh
+source "${SCRIPTDIR}/act_bash/exec.sh"
 # shellcheck source=act_bash/log.sh
 source "${SCRIPTDIR}/act_bash/log.sh"
 # shellcheck source=act_bash/naming.sh
@@ -48,7 +50,7 @@ VERBOSE="false"
 
 # Prints the script's usage and exits.
 usage() {
-  echo "usage: $0 [-d DIR] [-m MACHINE] [-c COMPILER] [-O OPT] [-M OPT] [-${ACT_STANDARD_FLAGS}] FILES..." >&2
+  echo "usage: $0 [-d DIR] [-m MACHINE] [-c COMPILER] [-O OPT] [-M OPT] [-${ACT_STANDARD_FLAGS}] TRACE BASE" >&2
   echo
   echo "-d: directory to use for outputting intermediate files"
   echo "-m: ID of machine to use"
@@ -57,20 +59,6 @@ usage() {
   act::standard_usage
 
   exit 1
-}
-
-# Runs the act-tester pipeline needed for bisection.
-run() {
-  local plan="${OUTPUT_DIR}/plan.orig.json"
-  local pplan="${OUTPUT_DIR}/plan.setc.json"
-  local lplan="${OUTPUT_DIR}/plan.lifted.json"
-  local oplan="${OUTPUT_DIR}/plan.out.json"
-
-  act-tester-plan -m "${MACHINE}" -c "${COMPILER}" "$@" > "${plan}"
-  act-tester-setc -c "${COMPILER}" --opt-level "${OPT}" --machine-opt "${MOPT}" "${plan}" > "${pplan}"
-  act-tester-lift -d "${OUTPUT_DIR}/lift" "${pplan}" > "${lplan}"
-  act-tester-invoke -d "${OUTPUT_DIR}/compile" -t 10s -T 5s "${lplan}" > "${oplan}"
-  act-tester-analyse -e "${oplan}"
 }
 
 # The main function.
@@ -90,11 +78,23 @@ main() {
   readonly VERBOSE FUZZ MACHINE
   shift $((OPTIND-1))
 
-  if [[ $# -lt 1 ]]; then act::arg_error "need at least one file argument"; fi
-  if [[ -z ${OUTPUT_DIR} ]]; then act::setup_temp_output_dir; fi
-  readonly OUTPUT_DIR
+  if [[ $# -ne 2 ]]; then act::arg_error "need two file arguments"; fi
+  local trace="$1"
+  local base="$2"
 
-  run "$@"
+  local out_trace="$(basename trace).mini"
+  local out_litmus="${out_trace}.litmus"
+
+  act::fuzz bisect \
+    -command "${SCRIPTDIR}/bisect_oracle" \
+    -o "${out_trace}" \
+    "${trace}" -- "${base}" \
+    "$(act::flags_qvx)" \
+    -m "${MACHINE}" -c "${COMPILER}" -O "${OPT}" -M "${MOPT}"
+
+  act::fuzz replay -o "${out_litmus}" -trace "${out_trace}" "${base}"
+
+  diff -u "${base}" "${out_litmus}"
 }
 
 main "$@"

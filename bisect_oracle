@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
+# Copyright (c) 2020 Matt Windsor and contributors
+#
+# This file is part of act-tester.
+# Licenced under the MIT licence; see `LICENSE`.
 
+# Adapts `bisect_driver` to a form that `act-fuzz bisect` can understand.
+
+# TODO(@MattWindsor91): make this parametric and more robust.
 set -euo pipefail
 
 SCRIPTDIR="${SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"

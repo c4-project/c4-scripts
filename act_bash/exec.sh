@@ -40,14 +40,21 @@ declare ACT_STATE
 #   *: the arguments to the program.
 act::exec() {
   local prog=$1
-  shift 1
+
+  # This convoluted mush is supposed to insert -v if VERBOSE is set, but
+  # only _after_ the subcommand name, if it is present.
+  local vflag=""
+  if [[ ${VERBOSE} = "true" ]]; then
+    vflag="-v"
+  fi
+  local subcom="$2"
 
   if [[ ${DUNE_EXEC} = "true" ]]; then
     # We can't build here because some of the act scripts fork off multiple
     # act tool executions, and building on each would cause race conditions.
-    dune exec --no-build --display=quiet "${prog}" -- "$@"
+    dune exec --no-build --display=quiet "${prog}" -- ${subcom:+"$subcom"} ${vflag:+"$vflag"} "${@:3}"
   else
-    "${prog}" "$@"
+    "${prog}" ${subcom:+"$subcom"} ${vflag:+"$vflag"} "${@:3}"
   fi
 }
 
