@@ -59,7 +59,7 @@ maybe_fuzz() {
     cat "$1"
   else
     act::log "Fuzzing %d time(s).\n" "${FUZZ}"
-    act-tester-fuzz -d "${OUTPUT_DIR}/fuzz" -k "${FUZZ}" "$1"
+    act-tester-fuzz -d "${OUTPUT_DIR}/fuzz" -k "${FUZZ}" -n "-1" "$1"
   fi
 }
 
