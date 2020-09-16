@@ -43,7 +43,7 @@ VERBOSE="false"
 
 # Prints the script's usage and exits.
 usage() {
-  echo "usage: $0 [-d DIR] [-f NUM_FUZZ] [-m MACHINE] [-${ACT_STANDARD_FLAGS}] FILES..." >&2
+  echo "usage: $0 [-d DIR] [-f CYCLES] [-m MACHINE] [-${ACT_STANDARD_FLAGS}] FILES..." >&2
   echo
   echo "-d: directory to use for outputting intermediate files"
   echo "-f: number of cycles to fuzz each subject (0 = don't fuzz)"
