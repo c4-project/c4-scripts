@@ -5,7 +5,7 @@
 # Licenced under the MIT licence; see `LICENSE`.
 
 # Frontend for act's trace bisection.  Remembers all the arguments so you
-# don't have to.
+# don't have to.
 
 set -euo pipefail
 
@@ -22,30 +22,33 @@ source "${SCRIPTDIR}/act_bash/log.sh"
 source "${SCRIPTDIR}/act_bash/naming.sh"
 
 
-## Variables ##
+## Arguments ##
 
+
+# Whether or not we're running ACT programs through `dune exec`.
+DUNE_EXEC="false"
 
 # The name of the output directory.
-# If empty, we use a temporary directory.
+# If empty, we use a temporary directory.
 OUTPUT_DIR=""
 
-# The ID of the machine to run.
+# The ID of the machine to run.
 MACHINE="localhost"
 
-# The ID of the compiler to run.
+# The ID of the compiler to run.
 COMPILER="gcc"
 
-# The opt of the compiler to run.
+# The opt of the compiler to run.
 OPT=""
 
-# The mopt of the compiler to run.
+# The mopt of the compiler to run.
 MOPT=""
 
 # Whether or not verbose logging is enabled.
 VERBOSE="false"
 
 
-## Functions ##
+## Functions ##
 
 
 # Prints the script's usage and exits.
@@ -54,6 +57,7 @@ usage() {
   echo
   echo "-d: directory to use for outputting intermediate files"
   echo "-m: ID of machine to use"
+  echo "-c: ID of compiler to use"
   echo "-O: optimisation level to use"
   echo "-M: machine optimisation profile to use"
   act::standard_usage
