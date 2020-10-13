@@ -40,6 +40,7 @@ mkdir -p "${PREFIX}"
 do_git
 
 # per https://gcc.gnu.org/install/configure.html
+readonly BUILDDIR="${GCCDIR}/build"
 rm -rf "${BUILDDIR}"
 mkdir -p "${BUILDDIR}"
 cd "${BUILDDIR}"
