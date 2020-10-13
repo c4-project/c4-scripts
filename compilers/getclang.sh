@@ -57,4 +57,4 @@ cmake \
 cmake --build .
 cmake --build . --target install
 
-ln -s "${FINALDIR}" "${CLANGDIR}/latest"
+ln -fsT "${FINALDIR}" "${CLANGDIR}/latest"
