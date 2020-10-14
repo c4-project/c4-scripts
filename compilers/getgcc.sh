@@ -32,17 +32,16 @@ do_git()
 	fi
 }
 
-# Some systems don't have the prerequisites.
-pushd "${GITDIR}"
-./contrib/download_prerequisites
-popd
-
 # The prefix into which we're putting this GCC snapshot.
 PREFIX="${GCCDIR}/$(date -I)"
 readonly PREFIX
 mkdir -p "${PREFIX}"
 
 do_git
+# Some systems don't have the prerequisites.
+pushd "${GITDIR}"
+./contrib/download_prerequisites
+popd
 
 # per https://gcc.gnu.org/install/configure.html
 readonly BUILDDIR="${GCCDIR}/build"
