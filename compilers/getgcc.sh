@@ -55,4 +55,4 @@ cd "${BUILDDIR}"
 make -j4
 make install
 
-ln -fsT "${PREFIX}/bin" "${GCCDIR}/latest"
+ln -fsT "${PREFIX}" "${GCCDIR}/latest"

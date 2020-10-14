@@ -36,9 +36,9 @@ do_git()
 }
 
 # The directory into which we're putting this Clang snapshot.
-FINALDIR="${CLANGDIR}/$(date -I)"
-readonly FINALDIR
-mkdir -p "${FINALDIR}"
+PREFIX="${CLANGDIR}/$(date -I)"
+readonly PREFIX
+mkdir -p "${PREFIX}"
 
 do_git
 
@@ -49,7 +49,7 @@ cd "${BUILDDIR}"
 
 # Release because non-Release configurations nom a lot of HDD space
 cmake \
-	-DCMAKE_INSTALL_PREFIX="${FINALDIR}" \
+	-DCMAKE_INSTALL_PREFIX="${PREFIX}" \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DLLVM_ENABLE_PROJECTS=clang \
 	-DLLVM_TARGETS_TO_BUILD="${CLANG_TARGETS}" \
@@ -57,4 +57,4 @@ cmake \
 cmake --build .
 cmake --build . --target install
 
-ln -fsT "${FINALDIR}" "${CLANGDIR}/latest"
+ln -fsT "${PREFIX}" "${CLANGDIR}/latest"
