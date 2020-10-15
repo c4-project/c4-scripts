@@ -10,10 +10,13 @@ if ! [[ -e "${LFILE}" ]]; then
 	echo "Need to create ${LFILE}" >&2
 	exit 1
 fi
+
+# Make sure GCC_CONFIG exists in some form, even if LFILE doesn't override it.
+declare -a GCC_CONFIG
+
 source "${LFILE}"
 
 COMPILERDIR=${COMPILERDIR:?"COMPILERDIR unset in ${LFILE}"}
-GCC_CONFIG=${GCC_CONFIG:-()}
 
 
 # The directory into which we're putting GCC snapshots.
