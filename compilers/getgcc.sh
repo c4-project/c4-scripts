@@ -13,6 +13,7 @@ fi
 source "${LFILE}"
 
 COMPILERDIR=${COMPILERDIR:?"COMPILERDIR unset in ${LFILE}"}
+GCC_CONFIG=${GCC_CONFIG:-()}
 
 
 # The directory into which we're putting GCC snapshots.
@@ -50,7 +51,8 @@ mkdir -p "${BUILDDIR}"
 cd "${BUILDDIR}"
 
 "${GITDIR}/configure" \
-	--prefix="${PREFIX}"
+	--prefix="${PREFIX}" \
+	"${GCC_CONFIG[@]}"
 make -j4
 make install
 
