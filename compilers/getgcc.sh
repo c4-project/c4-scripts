@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-readonly LFILE="${XDG_CONFIG_HOME:-"${HOME}/.config"}/act/scripts.local"
+readonly LFILE="${XDG_CONFIG_HOME:-"${HOME}/.config"}/c4t/scripts.local"
 if ! [[ -e "${LFILE}" ]]; then
 	echo "Need to create ${LFILE}" >&2
 	exit 1

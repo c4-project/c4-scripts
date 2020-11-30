@@ -1,11 +1,11 @@
 #!/bin/bash
 # Copyright (c) 2020 Matt Windsor and contributors
 #
-# This file is part of act-tester.
+# This file is part of c4-scripts.
 # Licenced under the MIT licence; see `LICENSE`.
 
 # Expects to be run in an ACT working directory.
-# Runs all of the various single-shot binaries of act-tester in a pipeline, outputting to ./tester_test.
+# Runs all of the various single-shot binaries of c4t in a pipeline, outputting to ./tester_test.
 
 # TODO(@MattWindsor91): make this parametric and more robust.
 
@@ -59,11 +59,11 @@ maybe_fuzz() {
     cat "$1"
   else
     act::log "Fuzzing %d time(s).\n" "${FUZZ}"
-    act-tester-fuzz -d "${OUTPUT_DIR}/fuzz" -k "${FUZZ}" -n "-1" "$1"
+    c4t-fuzz -d "${OUTPUT_DIR}/fuzz" -k "${FUZZ}" -n "-1" "$1"
   fi
 }
 
-# Runs the act-tester pipeline.
+# Runs the c4t pipeline.
 run() {
   local plan="${OUTPUT_DIR}/plan.orig.json"
   local pplan="${OUTPUT_DIR}/plan.perturbed.json"
@@ -71,12 +71,12 @@ run() {
   local lplan="${OUTPUT_DIR}/plan.lifted.json"
   local oplan="${OUTPUT_DIR}/plan.out.json"
 
-  act-tester-plan -m "${MACHINE}" "$@" > "${plan}"
-  act-tester-perturb "${plan}" > "${pplan}"
+  c4t-plan -m "${MACHINE}" "$@" > "${plan}"
+  c4t-perturb "${plan}" > "${pplan}"
   maybe_fuzz "${pplan}" > "${fplan}"
-  act-tester-lift -d "${OUTPUT_DIR}/lift" "${fplan}" > "${lplan}"
-  act-tester-invoke -d "${OUTPUT_DIR}/compile" "${lplan}" > "${oplan}"
-  act-tester-analyse -CPS "${oplan}"
+  c4t-lift -d "${OUTPUT_DIR}/lift" "${fplan}" > "${lplan}"
+  c4t-invoke -d "${OUTPUT_DIR}/compile" "${lplan}" > "${oplan}"
+  c4t-analyse -CPS "${oplan}"
 }
 
 # The main function.

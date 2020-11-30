@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copyright (c) 2020 Matt Windsor and contributors
 #
-# This file is part of act-tester.
+# This file is part of c4-scripts.
 # Licenced under the MIT licence; see `LICENSE`.
 
 # Frontend for act's trace bisection.  Remembers all the arguments so you

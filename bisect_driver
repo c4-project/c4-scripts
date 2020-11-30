@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Copyright (c) 2020 Matt Windsor and contributors
 #
-# This file is part of act-tester.
+# This file is part of c4-scripts.
 # Licenced under the MIT licence; see `LICENSE`.
 
-# Runs all of the various single-shot binaries of act-tester in a pipeline, but
+# Runs all of the various single-shot binaries of c4t in a pipeline, but
 # in a way that is amenable to use as a bisection driver.
 
 set -euo pipefail
@@ -59,18 +59,18 @@ usage() {
   exit 1
 }
 
-# Runs the act-tester pipeline needed for bisection.
+# Runs the c4t pipeline needed for bisection.
 run() {
   local plan="${OUTPUT_DIR}/plan.orig.json"
   local pplan="${OUTPUT_DIR}/plan.setc.json"
   local lplan="${OUTPUT_DIR}/plan.lifted.json"
   local oplan="${OUTPUT_DIR}/plan.out.json"
 
-  act-tester-plan -m "${MACHINE}" -c "${COMPILER}" "$@" > "${plan}"
-  act-tester-setc -c "${COMPILER}" --opt-level "${OPT}" --machine-opt "${MOPT}" "${plan}" > "${pplan}"
-  act-tester-lift -d "${OUTPUT_DIR}/lift" "${pplan}" > "${lplan}"
-  act-tester-invoke -d "${OUTPUT_DIR}/compile" -t 10s -T 5s "${lplan}" > "${oplan}"
-  act-tester-analyse -e "${oplan}"
+  c4t-plan -m "${MACHINE}" -c "${COMPILER}" "$@" > "${plan}"
+  c4t-setc -c "${COMPILER}" --opt-level "${OPT}" --machine-opt "${MOPT}" "${plan}" > "${pplan}"
+  c4t-lift -d "${OUTPUT_DIR}/lift" "${pplan}" > "${lplan}"
+  c4t-invoke -d "${OUTPUT_DIR}/compile" -t 10s -T 5s "${lplan}" > "${oplan}"
+  c4t-analyse -e "${oplan}"
 }
 
 # The main function.
