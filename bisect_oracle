@@ -4,7 +4,7 @@
 # This file is part of c4-scripts.
 # Licenced under the MIT licence; see `LICENSE`.
 
-# Adapts `bisect_driver` to a form that `act-fuzz bisect` can understand.
+# Adapts a bisection script to a form that `act-fuzz bisect` can understand.
 
 # TODO(@MattWindsor91): make this parametric and more robust.
 set -euo pipefail
@@ -12,15 +12,16 @@ set -euo pipefail
 SCRIPTDIR="${SCRIPTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"}"
 readonly SCRIPTDIR
 
-if [[ $# -le 2 ]]; then
-    echo "usage: $0 TRACE ORIGINAL [ARGS...]" >&2
+if [[ $# -lt 3 ]]; then
+    echo "usage: $0 TRACE ORIGINAL SCRIPT [ARGS...]" >&2
     exit 2
 fi
 
 trace="$1"
 original="$2"
+script="$3"
 
-shift 2
+shift 3
 
 # TODO(@MattWindsor91): this is working around a failure in the litmusifying process when a litmus file has a name
 # of the form foo.bar.baz (the output C file becomes foo.c).
@@ -29,4 +30,4 @@ trap 'rm -rf ${OUTPUT_DIR}' EXIT
 
 act-fuzz replay -trace "${trace}" "${original}" -o "${OUTPUT_DIR}/in.litmus"
 
-"${SCRIPTDIR}/bisect_driver" "$@" "${OUTPUT_DIR}/in.litmus"
+"${script}" "$@" "${OUTPUT_DIR}/in.litmus"
