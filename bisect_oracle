@@ -28,6 +28,6 @@ shift 3
 OUTPUT_DIR="$(mktemp -d)" || exit 2
 trap 'rm -rf ${OUTPUT_DIR}' EXIT
 
-act-fuzz replay -trace "${trace}" "${original}" -o "${OUTPUT_DIR}/in.litmus"
+c4f replay -trace "${trace}" "${original}" -o "${OUTPUT_DIR}/in.litmus"
 
 "${script}" "$@" "${OUTPUT_DIR}/in.litmus"

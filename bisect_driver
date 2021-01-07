@@ -69,7 +69,7 @@ run() {
   c4t-plan -m "${MACHINE}" -c "${COMPILER}" "$@" > "${plan}"
   c4t-setc -c "${COMPILER}" --opt-level "${OPT}" --machine-opt "${MOPT}" "${plan}" > "${pplan}"
   c4t-lift -d "${OUTPUT_DIR}/lift" "${pplan}" > "${lplan}"
-  c4t-invoke -d "${OUTPUT_DIR}/compile" -t 10s -T 5s "${lplan}" > "${oplan}"
+  c4t-invoke -d "${OUTPUT_DIR}/compile" -t 20s -T 10s "${lplan}" > "${oplan}"
   c4t-analyse -e "${oplan}"
 }
 

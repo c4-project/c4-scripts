@@ -92,7 +92,7 @@ main() {
   act::fuzz bisect \
     -command "${SCRIPTDIR}/bisect_oracle" \
     -o "${out_trace}" \
-    "${trace}" -- "${base}"
+    "${trace}" -- "${base}" \
     "${SCRIPTDIR}/bisect_driver" \
     "$(act::flags_qvx)" \
     -m "${MACHINE}" -c "${COMPILER}" -O "${OPT}" -M "${MOPT}"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Contains a wrapper for running ACT binaries, which allows for the use
+# Contains a wrapper for running C4F binaries, which allows for the use
 # of 'dune exec'.
 
 
@@ -9,13 +9,13 @@
 declare DUNE_EXEC
 
 # If set, overrides the choice of `act-c` executable.
-declare ACT_C
+declare C4F_C
 
 # If set, overrides the choice of `act-fuzz` executable.
-declare ACT_FUZZ
+declare C4F_FUZZ
 
 
-# Runs an OCaml ACT tool.
+# Runs an OCaml C4F tool.
 #
 # If `DUNE_EXEC` is set to "true", the tool will be run indirectly through
 # `dune exec`.
@@ -24,7 +24,7 @@ declare ACT_FUZZ
 #   - DUNE_EXEC (read)
 #
 # Arguments:
-#   1: the ACT program to execute.
+#   1: the C4F program to execute.
 #   *: the arguments to the program.
 act::exec() {
   local prog=$1
@@ -47,23 +47,23 @@ act::exec() {
 }
 
 
-# Runs the ACT 'c' tool.
+# Runs the c4f 'c' tool.
 #
 # Globals:
-#   - ACT_C (read)
+#   - C4F_C (read)
 #   - DUNE_EXEC (transitively read)
 #
 # Arguments:
 #   *: the arguments to the program.
 act::c() {
-  act::exec "${ACT_C:-"act-c"}" "$@"
+  act::exec "${C4F_C:-"c4f-c"}" "$@"
 }
 
 
-# Runs the ACT 'delitmus' sub-tool.
+# Runs the c4f 'delitmus' sub-tool.
 #
 # Globals:
-#   - ACT_C (read)
+#   - C4F_C (read)
 #   - DUNE_EXEC (transitively read)
 #
 # Arguments:
@@ -74,14 +74,14 @@ act::delitmus() {
 }
 
 
-# Runs the ACT 'fuzz' tool.
+# Runs the c4f 'fuzz' tool.
 #
 # Globals:
-#   - ACT_FUZZ (read)
+#   - C4F_FUZZ (read)
 #   - DUNE_EXEC (transitively read)
 #
 # Arguments:
 #   *: the arguments to the program.
 act::fuzz() {
-  act::exec "${ACT_FUZZ:-"act-fuzz"}" "$@"
+  act::exec "${C4F_FUZZ:-"c4f"}" "$@"
 }

@@ -37,7 +37,7 @@ VERBOSE="false"
 # results to a directory with systematic naming.
 #
 # Globals:
-#   ACT_C: read
+#   C4F_C: read
 #
 # Arguments:
 #   1: fuzzer output directory

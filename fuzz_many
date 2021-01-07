@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs the ACT fuzzer several times on each of a set of C litmus tests,
+# Runs c4f several times on each of a set of C litmus tests,
 # outputting the results into a directory.
 #
 # For usage information, scroll down to the `usage` function.
@@ -37,7 +37,7 @@ COUNT=10
 # The name to give to the fuzzing output directory.
 DIR_NAME="fuzz_$(date '+%y_%m_%d_%H_%M_%S')"
 
-# Whether or not we're running ACT programs through `dune exec`.
+# Whether or not we're running c4f programs through `dune exec`.
 DUNE_EXEC="false"
 
 # If set to 'true', do some human-convenience steps.
@@ -66,7 +66,7 @@ open_directory() {
 # results to a directory with systematic naming.
 #
 # Globals:
-#   ACT_FUZZ: read
+#   C4F_FUZZ: read
 #
 # Arguments:
 #   1: fuzzer output directory
